@@ -6,7 +6,12 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      redirect: '/task-board',
+      redirect: '/login',
+    },
+    {
+      path: '/home',
+      name: 'workbench',
+      component: () => import('../views/HomeView.vue'),
     },
     {
       path: '/about',

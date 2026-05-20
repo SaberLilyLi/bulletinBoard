@@ -9,7 +9,14 @@ import {
   TooltipComponent,
 } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
-import { DataLine, Download, Histogram, Refresh, TrendCharts, WarningFilled } from '@element-plus/icons-vue'
+import {
+  DataLine,
+  Download,
+  Histogram,
+  Refresh,
+  TrendCharts,
+  WarningFilled,
+} from '@element-plus/icons-vue'
 
 echarts.use([
   BarChart,
@@ -56,16 +63,27 @@ const comboRef = ref<HTMLDivElement>()
 const gaugeRef = ref<HTMLDivElement>()
 let charts: echarts.ECharts[] = []
 
+function getThemeColor(name: string) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+}
+
 function initCharts() {
   if (!radarRef.value || !donutRef.value || !comboRef.value || !gaugeRef.value) return
 
   const radarChart = echarts.init(radarRef.value)
+  const axisColor = getThemeColor('--chart-axis-color')
+  const labelColor = getThemeColor('--chart-label-color')
+  const lineColor = getThemeColor('--chart-line-color')
+  const splitColor = getThemeColor('--chart-split-color')
+  const areaColor1 = getThemeColor('--chart-area-1')
+  const areaColor2 = getThemeColor('--chart-area-2')
+  const gaugeTrackColor = getThemeColor('--chart-gauge-track')
   radarChart.setOption({
     color: ['#2563eb', '#f59e0b'],
     tooltip: { trigger: 'item' },
     legend: {
       bottom: 0,
-      textStyle: { color: '#64748b' },
+      textStyle: { color: axisColor },
     },
     radar: {
       radius: '64%',
@@ -76,10 +94,10 @@ function initCharts() {
         { name: '风险控制', max: 100 },
         { name: '需求清晰', max: 100 },
       ],
-      axisName: { color: '#334155', fontSize: 12 },
-      splitLine: { lineStyle: { color: '#d9e2ef' } },
-      splitArea: { areaStyle: { color: ['#f8fbff', '#eef4fb'] } },
-      axisLine: { lineStyle: { color: '#d9e2ef' } },
+      axisName: { color: labelColor, fontSize: 12 },
+      splitLine: { lineStyle: { color: lineColor } },
+      splitArea: { areaStyle: { color: [areaColor1, areaColor2] } },
+      axisLine: { lineStyle: { color: lineColor } },
     },
     series: [
       {
@@ -100,7 +118,7 @@ function initCharts() {
     tooltip: { trigger: 'item', formatter: '{b}<br/>任务数：{c}<br/>占比：{d}%' },
     legend: {
       bottom: 0,
-      textStyle: { color: '#64748b' },
+      textStyle: { color: axisColor },
     },
     series: [
       {
@@ -108,7 +126,7 @@ function initCharts() {
         radius: ['50%', '72%'],
         center: ['50%', '45%'],
         avoidLabelOverlap: true,
-        label: { formatter: '{b}\n{d}%', color: '#334155' },
+        label: { formatter: '{b}\n{d}%', color: labelColor },
         data: [
           { value: 38, name: '需求' },
           { value: 46, name: '研发' },
@@ -126,20 +144,20 @@ function initCharts() {
     legend: {
       top: 0,
       right: 0,
-      textStyle: { color: '#64748b' },
+      textStyle: { color: axisColor },
     },
     grid: { left: 36, right: 18, bottom: 28, top: 44 },
     xAxis: {
       type: 'category',
       data: trend.map((item) => item.day),
       axisTick: { show: false },
-      axisLine: { lineStyle: { color: '#d7e0ec' } },
-      axisLabel: { color: '#64748b' },
+      axisLine: { lineStyle: { color: lineColor } },
+      axisLabel: { color: axisColor },
     },
     yAxis: {
       type: 'value',
-      splitLine: { lineStyle: { color: '#eef2f7' } },
-      axisLabel: { color: '#64748b' },
+      splitLine: { lineStyle: { color: splitColor } },
+      axisLabel: { color: axisColor },
     },
     series: [
       {
@@ -175,7 +193,7 @@ function initCharts() {
         axisLine: {
           lineStyle: {
             width: 14,
-            color: [[1, '#e6edf6']],
+            color: [[1, gaugeTrackColor]],
           },
         },
         axisTick: { show: false },
@@ -186,7 +204,7 @@ function initCharts() {
         detail: {
           valueAnimation: true,
           formatter: '{value}%',
-          color: '#172033',
+          color: labelColor,
           fontSize: 30,
           fontWeight: 800,
           offsetCenter: [0, '8%'],
@@ -203,14 +221,29 @@ function resizeCharts() {
   charts.forEach((chart) => chart.resize())
 }
 
+function refreshCharts() {
+  charts.forEach((chart) => chart.dispose())
+  charts = []
+  initCharts()
+}
+
+const themeObserver = new MutationObserver(() => {
+  refreshCharts()
+})
+
 onMounted(async () => {
   await nextTick()
   initCharts()
   window.addEventListener('resize', resizeCharts)
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme'],
+  })
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', resizeCharts)
+  themeObserver.disconnect()
   charts.forEach((chart) => chart.dispose())
   charts = []
 })
@@ -378,20 +411,20 @@ onBeforeUnmount(() => {
 
   h2 {
     margin: 2px 0 6px;
-    color: #172033;
+    color: var(--color-heading);
     font-size: 28px;
     line-height: 1.18;
     font-weight: 800;
   }
 
   span {
-    color: #64748b;
+    color: var(--color-text-muted);
   }
 }
 
 .section-label {
   margin: 0;
-  color: #2563eb;
+  color: var(--color-primary);
   font-size: 13px;
   font-weight: 700;
 }
@@ -408,23 +441,23 @@ onBeforeUnmount(() => {
 
   article {
     padding: 18px;
-    border: 1px solid #e4ebf5;
+    border: 1px solid var(--color-border);
     border-radius: 8px;
-    background: #fff;
+    background: var(--color-surface);
     transition:
       transform 0.18s ease,
       box-shadow 0.18s ease;
 
     &:hover {
       transform: translateY(-3px);
-      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.1);
+      box-shadow: var(--color-card-shadow-hover);
     }
   }
 
   svg {
     width: 24px;
     height: 24px;
-    color: #2563eb;
+    color: var(--color-primary);
   }
 
   span,
@@ -435,12 +468,12 @@ onBeforeUnmount(() => {
 
   span {
     margin-top: 12px;
-    color: #64748b;
+    color: var(--color-text-muted);
     font-size: 13px;
   }
 
   strong {
-    color: #172033;
+    color: var(--color-heading);
     font-size: 28px;
     font-weight: 800;
   }
@@ -461,9 +494,9 @@ onBeforeUnmount(() => {
   gap: 16px;
   margin-bottom: 16px;
   padding: 14px 18px;
-  border: 1px solid #dbeafe;
+  border: 1px solid var(--color-primary-muted);
   border-radius: 8px;
-  background: linear-gradient(90deg, #eff6ff 0%, #ffffff 100%);
+  background: linear-gradient(90deg, var(--color-primary-soft) 0%, var(--color-surface) 100%);
 
   span,
   strong {
@@ -471,14 +504,14 @@ onBeforeUnmount(() => {
   }
 
   span {
-    color: #2563eb;
+    color: var(--color-primary);
     font-size: 12px;
     font-weight: 800;
   }
 
   strong {
     margin-top: 3px;
-    color: #172033;
+    color: var(--color-heading);
     font-weight: 800;
   }
 }
@@ -491,9 +524,9 @@ onBeforeUnmount(() => {
 
 .panel {
   padding: 18px;
-  border: 1px solid #e4ebf5;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: #fff;
+  background: var(--color-surface);
 
   header {
     justify-content: space-between;
@@ -503,14 +536,14 @@ onBeforeUnmount(() => {
 
   h3 {
     margin: 0;
-    color: #172033;
+    color: var(--color-heading);
     font-size: 17px;
     font-weight: 800;
   }
 }
 
 .hint {
-  color: #94a3b8;
+  color: var(--color-text-subtle);
   font-size: 12px;
 }
 
@@ -538,20 +571,20 @@ onBeforeUnmount(() => {
   text-align: center;
 
   em {
-    color: #64748b;
+    color: var(--color-text-muted);
     font-style: normal;
     font-size: 12px;
   }
 
   &.active {
     .bar-track {
-      background: #dbeafe;
-      box-shadow: inset 0 0 0 1px #bfdbfe;
+      background: var(--color-primary-muted);
+      box-shadow: inset 0 0 0 1px var(--color-primary);
     }
 
     .bar-track span {
       transform: scaleY(1.04);
-      background: linear-gradient(180deg, #93c5fd 0%, #2563eb 70%, #1d4ed8 100%);
+      background: linear-gradient(180deg, #93c5fd 0%, var(--color-primary) 70%, #1d4ed8 100%);
       box-shadow: 0 14px 28px rgba(37, 99, 235, 0.32);
     }
 
@@ -566,7 +599,7 @@ onBeforeUnmount(() => {
 .bar-track {
   height: 100%;
   border-radius: 8px;
-  background: #edf2f8;
+  background: var(--color-surface-muted);
   display: flex;
   align-items: end;
   overflow: hidden;
@@ -578,7 +611,7 @@ onBeforeUnmount(() => {
     width: 100%;
     min-height: 24px;
     border-radius: 8px 8px 0 0;
-    background: linear-gradient(180deg, #60a5fa, #2563eb);
+    background: linear-gradient(180deg, #60a5fa, var(--color-primary));
     transform-origin: bottom;
     transition:
       height 0.45s cubic-bezier(0.2, 0.8, 0.2, 1),
@@ -597,10 +630,10 @@ onBeforeUnmount(() => {
   min-width: 132px;
   padding: 10px 12px;
   border-radius: 8px;
-  background: #172033;
+  background: var(--chart-tooltip-bg);
   color: #fff;
   text-align: left;
-  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.24);
+  box-shadow: var(--color-card-shadow-hover);
   opacity: 0;
   transform: translate(-50%, 0);
   transition:
@@ -615,7 +648,7 @@ onBeforeUnmount(() => {
     bottom: -6px;
     width: 12px;
     height: 12px;
-    background: #172033;
+    background: var(--chart-tooltip-bg);
     transform: translateX(-50%) rotate(45deg);
   }
 
@@ -631,7 +664,7 @@ onBeforeUnmount(() => {
 
   span {
     margin-top: 3px;
-    color: #cbd5e1;
+    color: var(--chart-tooltip-text);
     font-size: 12px;
   }
 }
@@ -659,12 +692,12 @@ onBeforeUnmount(() => {
   margin-bottom: 8px;
 
   strong {
-    color: #172033;
+    color: var(--color-heading);
     font-weight: 800;
   }
 
   span {
-    color: #64748b;
+    color: var(--color-text-muted);
     font-size: 13px;
   }
 }

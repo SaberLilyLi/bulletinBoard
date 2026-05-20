@@ -6,6 +6,197 @@
   font-weight: normal;
 }
 
+.page {
+  min-height: calc(100vh - 76px);
+  background: var(--color-page-bg) !important;
+  color: var(--color-text) !important;
+  transition:
+    background 0.24s ease,
+    color 0.24s ease;
+}
+
+.login-page,
+.login-section {
+  background: var(--color-page-bg) !important;
+  color: var(--color-text) !important;
+}
+
+:root[data-theme='dark'] .login-section::before,
+:root[data-theme='dark'] .login-section::after,
+:root[data-theme='dark'] .login-card::after {
+  opacity: 0.28;
+}
+
+.hero-row h2,
+.panel h3,
+.metric strong,
+.metric-grid strong,
+.column-header strong,
+.task-card h3,
+.drawer-title span,
+.detail-hero h2,
+.detail-section h3,
+.detail-grid strong,
+.member-main strong,
+.focus-grid strong,
+.channel-row strong,
+.activity-row strong,
+.insight-strip strong,
+.department-title strong,
+.login-title h2 {
+  color: var(--color-heading) !important;
+}
+
+.hero-row span,
+.metric span,
+.filter-group > span,
+.task-card p,
+.task-card footer,
+.date,
+.tip-line,
+.drawer-title strong,
+.detail-hero p,
+.detail-grid span,
+.member-main span,
+.focus-grid span,
+.channel-row span,
+.activity-row span,
+.activity-row em,
+.hint,
+.department-title span,
+.login-title span {
+  color: var(--color-text-muted) !important;
+}
+
+.section-label,
+.activity-row svg,
+.metric-grid svg,
+.section-heading strong {
+  color: var(--color-primary) !important;
+}
+
+.metric,
+.panel,
+.task-card,
+.detail-hero,
+.detail-section,
+.login-card {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface) !important;
+  box-shadow: var(--color-card-shadow) !important;
+}
+
+.filter-panel,
+.kanban-column,
+.member-row,
+.focus-grid div,
+.detail-grid div,
+.quick-login {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-elevated) !important;
+}
+
+.metric-icon {
+  background: var(--color-primary-soft) !important;
+  color: var(--color-primary) !important;
+  box-shadow: inset 0 0 0 1px var(--color-primary-muted) !important;
+}
+
+.column-header em {
+  background: var(--color-surface) !important;
+  color: var(--color-text-muted) !important;
+}
+
+.kanban-column.is-active {
+  border-color: var(--color-primary) !important;
+  background: var(--color-primary-soft) !important;
+}
+
+.task-card:hover,
+.metric:hover,
+.metric-grid article:hover {
+  box-shadow: var(--color-card-shadow-hover) !important;
+}
+
+.assignee,
+.check-item,
+.quick-login div {
+  color: var(--color-text) !important;
+}
+
+.member-stack .el-avatar {
+  box-shadow: 0 0 0 2px var(--color-surface) !important;
+}
+
+.channel-row,
+.activity-row {
+  border-bottom-color: var(--color-border-soft) !important;
+}
+
+.insight-strip {
+  border-color: var(--color-primary-muted) !important;
+  background: linear-gradient(
+    90deg,
+    var(--color-primary-soft) 0%,
+    var(--color-surface) 100%
+  ) !important;
+}
+
+.bar-track {
+  background: var(--color-surface-muted) !important;
+}
+
+.bar-item.active .bar-track {
+  background: var(--color-primary-muted) !important;
+  box-shadow: inset 0 0 0 1px var(--color-primary) !important;
+}
+
+.bar-tooltip {
+  background: var(--chart-tooltip-bg) !important;
+}
+
+.bar-tooltip::after {
+  background: var(--chart-tooltip-bg) !important;
+}
+
+.bar-tooltip span {
+  color: var(--chart-tooltip-text) !important;
+}
+
+.risk-note {
+  background: var(--color-warning-bg) !important;
+}
+
+.risk-note strong {
+  color: var(--color-warning-title) !important;
+}
+
+.risk-note p {
+  color: var(--color-warning-text) !important;
+}
+
+:root[data-theme='dark'] .task-card::after {
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.12), rgba(96, 165, 250, 0));
+}
+
+:root[data-theme='dark'] .task-detail-drawer .el-drawer__header {
+  border-bottom-color: var(--color-border) !important;
+}
+
+:root[data-theme='dark'] .task-detail-drawer .el-drawer__body {
+  background: var(--color-drawer-bg) !important;
+}
+
+:root[data-theme='dark'] .el-table {
+  --el-table-bg-color: var(--color-surface);
+  --el-table-tr-bg-color: var(--color-surface);
+  --el-table-header-bg-color: var(--color-surface-muted);
+  --el-table-row-hover-bg-color: var(--color-surface-muted);
+  --el-table-border-color: var(--color-border);
+  --el-table-text-color: var(--color-text);
+  --el-table-header-text-color: var(--color-heading);
+}
+
 a,
 .green {
   text-decoration: none;

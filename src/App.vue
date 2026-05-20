@@ -4,13 +4,19 @@ import {
   DataAnalysis,
   Files,
   Grid,
+  House,
+  Moon,
   Operation,
+  Sunny,
+  SwitchButton,
   TrendCharts,
   User,
 } from '@element-plus/icons-vue'
-import { RouterView, useRoute } from 'vue-router'
+import { computed, onMounted, ref, watch } from 'vue'
+import { RouterView, useRoute, useRouter } from 'vue-router'
 
 const navItems = [
+  { path: '/home', label: '工作台', icon: House },
   { path: '/task-board', label: '任务看板', icon: Grid },
   { path: '/team-collaboration', label: '团队协作', icon: User },
   { path: '/data-board', label: '数据看板', icon: TrendCharts },
@@ -18,10 +24,49 @@ const navItems = [
 ]
 
 const route = useRoute()
+const router = useRouter()
+const theme = ref<'light' | 'dark'>('light')
+const themeIcon = computed(() => (theme.value === 'dark' ? Sunny : Moon))
+const themeLabel = computed(() => (theme.value === 'dark' ? '日间模式' : '夜间模式'))
+
+function applyTheme(value: 'light' | 'dark') {
+  const root = document.documentElement
+  root.dataset.theme = value
+  root.classList.toggle('dark', value === 'dark')
+  localStorage.setItem('smart-task-theme', value)
+}
+
+function toggleTheme() {
+  theme.value = theme.value === 'dark' ? 'light' : 'dark'
+}
+
+function logout() {
+  router.push('/login')
+}
+
+onMounted(() => {
+  const savedTheme = localStorage.getItem('smart-task-theme')
+  const preferredTheme =
+    savedTheme === 'dark' || savedTheme === 'light'
+      ? savedTheme
+      : window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light'
+
+  theme.value = preferredTheme
+  applyTheme(preferredTheme)
+})
+
+watch(theme, applyTheme)
 </script>
 
 <template>
-  <RouterView v-if="route.path === '/login'" />
+  <div v-if="route.path === '/login'" class="login-shell">
+    <el-tooltip :content="themeLabel">
+      <el-button class="login-theme-toggle" :icon="themeIcon" circle @click="toggleTheme" />
+    </el-tooltip>
+    <RouterView />
+  </div>
 
   <div v-else class="layout">
     <aside class="sidebar">
@@ -34,11 +79,11 @@ const route = useRoute()
       </div>
 
       <el-menu
-        default-active="/task-board"
+        :default-active="route.path"
         class="side-menu"
         router
         background-color="transparent"
-        text-color="#c9d4e5"
+        text-color="var(--color-sidebar-text)"
         active-text-color="#ffffff"
       >
         <el-menu-item v-for="item in navItems" :key="item.path" :index="item.path">
@@ -63,9 +108,19 @@ const route = useRoute()
           <h1>产品研发中心</h1>
         </div>
         <div class="top-actions">
+          <el-button :icon="themeIcon" @click="toggleTheme">{{ themeLabel }}</el-button>
           <el-button :icon="Files">周报</el-button>
           <el-button :icon="Bell" circle />
-          <el-avatar :size="36">林</el-avatar>
+          <el-dropdown trigger="click" @command="logout">
+            <button class="avatar-trigger" type="button">
+              <el-avatar :size="36">林</el-avatar>
+            </button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="logout" :icon="SwitchButton">退出登录</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </div>
       </header>
 
@@ -90,7 +145,7 @@ const route = useRoute()
 
 .sidebar {
   width: 244px;
-  background: #172033;
+  background: var(--color-sidebar-bg);
   color: #fff;
   height: 100vh;
   flex-shrink: 0;
@@ -119,7 +174,7 @@ const route = useRoute()
 
   span {
     margin-top: 2px;
-    color: #91a3bd;
+    color: var(--color-sidebar-muted);
     font-size: 12px;
   }
 }
@@ -187,7 +242,7 @@ const route = useRoute()
   min-width: 0;
   min-height: 0;
   height: 100vh;
-  background: #f4f7fb;
+  background: var(--color-background);
   overflow-y: auto;
   box-sizing: border-box;
   width: 100%;
@@ -196,8 +251,8 @@ const route = useRoute()
 .topbar {
   height: 76px;
   padding: 0 28px;
-  background: #fff;
-  border-bottom: 1px solid #e6ecf3;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -207,7 +262,7 @@ const route = useRoute()
 
   h1 {
     margin: 2px 0 0;
-    color: #182235;
+    color: var(--color-heading);
     font-size: 22px;
     line-height: 1.2;
     font-weight: 750;
@@ -215,7 +270,7 @@ const route = useRoute()
 }
 
 .eyebrow {
-  color: #64748b;
+  color: var(--color-text-muted);
   font-size: 12px;
 }
 
@@ -223,6 +278,35 @@ const route = useRoute()
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.avatar-trigger {
+  display: grid;
+  place-items: center;
+  padding: 2px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+
+  &:hover {
+    border-color: var(--color-border);
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+  }
+}
+
+.login-shell {
+  min-height: 100vh;
+}
+
+.login-theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 20;
 }
 
 .fade-enter-active,

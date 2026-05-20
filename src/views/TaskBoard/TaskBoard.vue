@@ -13,6 +13,7 @@ import {
   Warning,
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import EmptyState from '@/components/EmptyState.vue'
 import type { Column, Task, TaskPriority, TaskStatus } from '@/types/TaskType'
 
 const priorityMeta: Record<TaskPriority, { label: string; type: 'danger' | 'warning' | 'info' }> = {
@@ -35,39 +36,39 @@ const columns = reactive<Column[]>([
     tasks: [
       {
         id: 'T-1024',
-        title: '梳理企业客户任务流转规则',
+        title: '整理客户验收问题清单',
         status: 'todo',
         priority: 'high',
         assignee: { name: '林清', avatar: '林' },
-        createdAt: new Date('2026-05-18 09:30'),
-        updatedAt: new Date('2026-05-19 15:10'),
-        tags: ['需求', '工作流'],
-        progress: 20,
-        description: '覆盖新建、派发、验收三个关键节点。',
+        createdAt: new Date('2026-05-21 09:20'),
+        updatedAt: new Date('2026-05-21 10:05'),
+        tags: ['验收', '客户反馈'],
+        progress: 15,
+        description: '汇总客户试用反馈，拆分为缺陷、优化和待确认事项。',
       },
       {
         id: 'T-1031',
-        title: '设计项目空间成员权限矩阵',
+        title: '补充任务详情字段校验规则',
         status: 'todo',
         priority: 'medium',
         assignee: { name: '周然', avatar: '周' },
-        createdAt: new Date('2026-05-18 11:20'),
-        updatedAt: new Date('2026-05-19 10:22'),
-        tags: ['权限', '成员'],
+        createdAt: new Date('2026-05-20 16:40'),
+        updatedAt: new Date('2026-05-21 09:12'),
+        tags: ['表单', '校验'],
         progress: 10,
-        description: '按管理员、项目负责人、协作者拆分操作范围。',
+        description: '限制空标题、无负责人、截止时间早于创建时间等异常输入。',
       },
       {
         id: 'T-1042',
-        title: '整理移动端任务卡片展示字段',
+        title: '确认移动端看板筛选交互',
         status: 'todo',
         priority: 'low',
         assignee: { name: '高宁', avatar: '高' },
-        createdAt: new Date('2026-05-19 14:35'),
-        updatedAt: new Date('2026-05-19 17:02'),
-        tags: ['移动端'],
+        createdAt: new Date('2026-05-20 14:35'),
+        updatedAt: new Date('2026-05-20 17:02'),
+        tags: ['移动端', '筛选'],
         progress: 5,
-        description: '保证小屏下标题、负责人、优先级不拥挤。',
+        description: '对齐小屏筛选入口、状态切换和清空条件的交互细节。',
       },
     ],
   },
@@ -78,27 +79,27 @@ const columns = reactive<Column[]>([
     tasks: [
       {
         id: 'T-1018',
-        title: '开发拖拽排序与跨列移动交互',
+        title: '联调任务拖拽状态变更接口',
         status: 'doing',
         priority: 'high',
         assignee: { name: '陈一', avatar: '陈' },
-        createdAt: new Date('2026-05-17 16:20'),
-        updatedAt: new Date('2026-05-20 10:30'),
-        tags: ['看板', '交互'],
+        createdAt: new Date('2026-05-19 16:20'),
+        updatedAt: new Date('2026-05-21 10:30'),
+        tags: ['看板', '接口联调'],
         progress: 68,
-        description: '拖动时高亮目标列，并在超出 WIP 时阻止移动。',
+        description: '将拖拽后的目标状态、排序位置和更新时间同步到后端。',
       },
       {
         id: 'T-1029',
-        title: '接入实时协作消息提醒样式',
+        title: '完善团队动态消息订阅',
         status: 'doing',
         priority: 'medium',
         assignee: { name: '许言', avatar: '许' },
-        createdAt: new Date('2026-05-18 13:00'),
-        updatedAt: new Date('2026-05-20 09:05'),
-        tags: ['通知', '协作'],
-        progress: 46,
-        description: '展示评论、提及、状态变更三类协作事件。',
+        createdAt: new Date('2026-05-20 13:00'),
+        updatedAt: new Date('2026-05-21 09:05'),
+        tags: ['消息', '协作'],
+        progress: 52,
+        description: '补齐评论、提及、状态变更三类事件的订阅和已读状态。',
       },
     ],
   },
@@ -109,27 +110,27 @@ const columns = reactive<Column[]>([
     tasks: [
       {
         id: 'T-1007',
-        title: '建立研发任务优先级颜色规范',
+        title: '完成工作台首页数据概览',
         status: 'done',
         priority: 'medium',
         assignee: { name: '唐棠', avatar: '唐' },
-        createdAt: new Date('2026-05-15 10:15'),
-        updatedAt: new Date('2026-05-18 18:20'),
-        tags: ['设计系统'],
+        createdAt: new Date('2026-05-18 10:15'),
+        updatedAt: new Date('2026-05-20 18:20'),
+        tags: ['工作台', '数据概览'],
         progress: 100,
-        description: '高、中、低优先级均已沉淀为统一标签。',
+        description: '上线欢迎区、快捷入口、重点任务和团队动态模块。',
       },
       {
         id: 'T-1009',
-        title: '完成基础路由与后台布局',
+        title: '上线登录页与基础路由',
         status: 'done',
         priority: 'high',
         assignee: { name: '林清', avatar: '林' },
-        createdAt: new Date('2026-05-16 09:10'),
-        updatedAt: new Date('2026-05-17 12:30'),
-        tags: ['布局', '路由'],
+        createdAt: new Date('2026-05-17 09:10'),
+        updatedAt: new Date('2026-05-19 12:30'),
+        tags: ['登录', '路由'],
         progress: 100,
-        description: '侧边栏、顶部栏、内容区已经串联。',
+        description: '完成登录入口、退出返回登录页和后台主框架路由配置。',
       },
     ],
   },
@@ -145,22 +146,23 @@ const detailDrawerVisible = ref(false)
 const selectedTask = ref<Task | null>(null)
 
 const detailChecklist = [
-  { label: '需求范围已确认', done: true },
-  { label: '交互稿完成走查', done: true },
-  { label: '接口字段完成对齐', done: false },
-  { label: '验收用例补充完成', done: false },
+  { label: '需求口径已确认', done: true },
+  { label: '接口字段已对齐', done: true },
+  { label: '异常场景已补充', done: false },
+  { label: '验收用例已回归', done: false },
 ]
 
 const detailActivities = [
-  { user: '林清', action: '补充了客户验收口径', time: '今天 10:24' },
-  { user: '陈一', action: '更新了拖拽交互方案', time: '昨天 18:12' },
-  { user: '周然', action: '完成接口字段评审', time: '昨天 15:40' },
+  { user: '陈一', action: '同步了接口联调进度', time: '今天 10:24' },
+  { user: '许言', action: '补充了消息订阅验收点', time: '今天 09:42' },
+  { user: '林清', action: '更新了客户验收问题清单', time: '昨天 18:20' },
 ]
 
 const newTask = reactive({
   title: '',
   priority: 'medium' as TaskPriority,
   assignee: '林清',
+  status: 'todo' as TaskStatus,
 })
 
 const filters = reactive({
@@ -229,32 +231,38 @@ function resetDrag() {
   activeDropStatus.value = ''
 }
 
+function openCreateDialog(status: TaskStatus = 'todo') {
+  newTask.status = status
+  dialogVisible.value = true
+}
+
 function addTask() {
   if (!newTask.title.trim()) {
     ElMessage.warning('请输入任务标题')
     return
   }
 
-  const todoColumn = findColumn('todo')
-  if (!todoColumn) return
+  const targetColumn = findColumn(newTask.status)
+  if (!targetColumn) return
 
   const assigneeName = newTask.assignee
-  todoColumn.tasks.unshift({
+  targetColumn.tasks.unshift({
     id: `T-${Math.floor(1100 + Math.random() * 800)}`,
     title: newTask.title.trim(),
-    status: 'todo',
+    status: newTask.status,
     priority: newTask.priority,
     assignee: { name: assigneeName, avatar: assigneeName.slice(0, 1) },
     createdAt: new Date(),
     updatedAt: new Date(),
-    tags: ['新建'],
+    tags: ['待拆分'],
     progress: 0,
-    description: '演示数据：新建任务会进入待办列。',
+    description: '请补充任务背景、验收标准和预计完成时间。',
   })
 
   newTask.title = ''
   newTask.priority = 'medium'
   newTask.assignee = '林清'
+  newTask.status = 'todo'
   dialogVisible.value = false
   ElMessage.success('任务已创建')
 }
@@ -284,9 +292,9 @@ function openTaskDetail(task: Task) {
       <div>
         <p class="section-label">任务看板</p>
         <h2>跨团队任务流转与 WIP 控制</h2>
-        <span>硬编码演示数据，覆盖任务创建、拖拽移动、优先级、负责人和进度展示。</span>
+        <span>跟踪本周研发任务进展，聚焦交付风险、负责人和关键状态流转。</span>
       </div>
-      <el-button type="primary" :icon="Plus" @click="dialogVisible = true">新建任务</el-button>
+      <el-button type="primary" :icon="Plus" @click="openCreateDialog()">新建任务</el-button>
     </div>
 
     <div class="metrics-grid">
@@ -379,7 +387,13 @@ function openTaskDetail(task: Task) {
         </header>
 
         <div class="task-list">
+          <EmptyState
+            v-if="column.tasks.length === 0"
+            :active="activeDropStatus === column.id"
+            @create="openCreateDialog(column.id)"
+          />
           <article
+            v-else
             v-for="task in column.tasks"
             :key="task.id"
             class="task-card"
@@ -449,6 +463,16 @@ function openTaskDetail(task: Task) {
             <el-option label="周然" value="周然" />
           </el-select>
         </el-form-item>
+        <el-form-item label="任务状态">
+          <el-select v-model="newTask.status">
+            <el-option
+              v-for="column in columns"
+              :key="column.id"
+              :label="column.title"
+              :value="column.id"
+            />
+          </el-select>
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
@@ -458,9 +482,14 @@ function openTaskDetail(task: Task) {
 
     <div class="tip-line">
       <Warning />
-      双击卡片标题可编辑；拖拽卡片到其他列可模拟状态流转。
+      双击卡片标题可快速编辑；拖拽卡片到其他列可更新任务状态。
     </div>
-    <el-drawer v-model="detailDrawerVisible" size="420px" class="task-detail-drawer" destroy-on-close>
+    <el-drawer
+      v-model="detailDrawerVisible"
+      size="420px"
+      class="task-detail-drawer"
+      destroy-on-close
+    >
       <template #header>
         <div class="drawer-title">
           <span>任务详情</span>
@@ -511,7 +540,7 @@ function openTaskDetail(task: Task) {
           <h3>标签</h3>
           <div class="detail-tags">
             <el-tag v-for="tag in selectedTask.tags" :key="tag" round>{{ tag }}</el-tag>
-            <el-tag type="info" round>客户演示</el-tag>
+            <el-tag type="info" round>本周迭代</el-tag>
             <el-tag type="success" round>本周重点</el-tag>
           </div>
         </section>
@@ -539,7 +568,7 @@ function openTaskDetail(task: Task) {
 
         <section class="detail-section risk-note">
           <strong>风险提示</strong>
-          <p>接口字段仍需在联调前完成最终确认，建议在今日站会同步阻塞点。</p>
+          <p>当前任务仍需确认验收口径和联调时间，建议在今日站会同步依赖方进展。</p>
         </section>
 
         <section class="detail-section">

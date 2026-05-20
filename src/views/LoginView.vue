@@ -29,7 +29,11 @@ const stats = [
   { label: '准时率', value: '92%', icon: Clock },
 ]
 
-const highlights = ['任务看板支持拖拽流转与 WIP 控制', '数据看板集成 ECharts 可视化图表', '任务详情抽屉展示完整协作上下文']
+const highlights = [
+  '任务看板支持拖拽流转与 WIP 控制',
+  '数据看板集成 ECharts 可视化图表',
+  '任务详情抽屉展示完整协作上下文',
+]
 
 function submitLogin() {
   if (!form.account || !form.password) {
@@ -41,7 +45,7 @@ function submitLogin() {
   window.setTimeout(() => {
     loading.value = false
     ElMessage.success('登录成功，正在进入工作台')
-    router.push('/task-board')
+    router.push('/home')
   }, 900)
 }
 </script>
@@ -60,7 +64,10 @@ function submitLogin() {
       <div class="brand-copy">
         <p>更高效的协作，更清晰的交付</p>
         <h1>让团队协作更高效，让每一个目标都落地。</h1>
-        <span>SmartTask 帮助团队实现任务流转、协作跟踪与数据洞察，让管理更简单，决策更有据，成果更可见。</span>
+        <span
+          >SmartTask
+          帮助团队实现任务流转、协作跟踪与数据洞察，让管理更简单，决策更有据，成果更可见。</span
+        >
       </div>
 
       <div class="stats-row">
@@ -127,7 +134,13 @@ function submitLogin() {
             <el-checkbox v-model="form.remember">记住登录状态</el-checkbox>
             <el-button link type="primary">忘记密码</el-button>
           </div>
-          <el-button type="primary" size="large" class="login-button" :loading="loading" @click="submitLogin">
+          <el-button
+            type="primary"
+            size="large"
+            class="login-button"
+            :loading="loading"
+            @click="submitLogin"
+          >
             登录演示系统
           </el-button>
         </el-form>
