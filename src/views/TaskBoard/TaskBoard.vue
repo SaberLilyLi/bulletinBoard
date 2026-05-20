@@ -1,6 +1,17 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
-import { Calendar, Check, Plus, Warning } from '@element-plus/icons-vue'
+import {
+  Briefcase,
+  Calendar,
+  Check,
+  Filter,
+  Flag,
+  PieChart,
+  Plus,
+  Search,
+  VideoPlay,
+  Warning,
+} from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import type { Column, Task, TaskPriority, TaskStatus } from '@/types/TaskType'
 
@@ -137,10 +148,19 @@ const newTask = reactive({
   assignee: '林清',
 })
 
+const filters = reactive({
+  keyword: '',
+  priority: 'all',
+  assignee: 'all',
+  status: 'all',
+})
+
 const allTasks = computed(() => columns.flatMap((column) => column.tasks))
 const totalTasks = computed(() => allTasks.value.length)
 const doneTasks = computed(() => columns.find((column) => column.id === 'done')?.tasks.length ?? 0)
-const doingTasks = computed(() => columns.find((column) => column.id === 'doing')?.tasks.length ?? 0)
+const doingTasks = computed(
+  () => columns.find((column) => column.id === 'doing')?.tasks.length ?? 0,
+)
 const deliveryRate = computed(() => Math.round((doneTasks.value / totalTasks.value) * 100))
 
 function formatDate(date: Date) {
@@ -251,22 +271,71 @@ function saveEdit(task: Task) {
 
     <div class="metrics-grid">
       <div class="metric">
-        <span>任务总数</span>
-        <strong>{{ totalTasks }}</strong>
+        <div class="metric-icon"><Briefcase /></div>
+        <div>
+          <span>任务总数</span>
+          <strong>{{ totalTasks }}</strong>
+        </div>
       </div>
       <div class="metric">
-        <span>进行中</span>
-        <strong>{{ doingTasks }}</strong>
+        <div class="metric-icon"><VideoPlay /></div>
+        <div>
+          <span>进行中</span>
+          <strong>{{ doingTasks }}</strong>
+        </div>
       </div>
       <div class="metric">
-        <span>交付率</span>
-        <strong>{{ deliveryRate }}%</strong>
+        <div class="metric-icon"><PieChart /></div>
+        <div>
+          <span>交付率</span>
+          <strong>{{ deliveryRate }}%</strong>
+        </div>
       </div>
       <div class="metric">
-        <span>高优先级</span>
-        <strong>{{ allTasks.filter((task) => task.priority === 'high').length }}</strong>
+        <div class="metric-icon"><Flag /></div>
+        <div>
+          <span>高优先级</span>
+          <strong>{{ allTasks.filter((task) => task.priority === 'high').length }}</strong>
+        </div>
       </div>
     </div>
+
+    <section class="filter-panel">
+      <el-input
+        v-model="filters.keyword"
+        class="search-input"
+        :prefix-icon="Search"
+        placeholder="搜索任务标题、关键词..."
+      />
+      <div class="filter-group">
+        <span>优先级</span>
+        <el-select v-model="filters.priority">
+          <el-option label="全部" value="all" />
+          <el-option label="高优先级" value="high" />
+          <el-option label="中优先级" value="medium" />
+          <el-option label="低优先级" value="low" />
+        </el-select>
+      </div>
+      <div class="filter-group">
+        <span>负责人</span>
+        <el-select v-model="filters.assignee">
+          <el-option label="全部" value="all" />
+          <el-option label="林清" value="林清" />
+          <el-option label="陈一" value="陈一" />
+          <el-option label="周然" value="周然" />
+        </el-select>
+      </div>
+      <div class="filter-group">
+        <span>状态</span>
+        <el-select v-model="filters.status">
+          <el-option label="全部" value="all" />
+          <el-option label="待办" value="todo" />
+          <el-option label="进行中" value="doing" />
+          <el-option label="已完成" value="done" />
+        </el-select>
+      </div>
+      <el-button :icon="Filter">清空筛选</el-button>
+    </section>
 
     <div class="board">
       <section
@@ -294,6 +363,7 @@ function saveEdit(task: Task) {
             v-for="task in column.tasks"
             :key="task.id"
             class="task-card"
+            :class="[`priority-${task.priority}`, { 'is-dragging': dragTaskId === task.id }]"
             draggable="true"
             @dragstart="startDrag(task, column.id)"
             @dragend="resetDrag"
@@ -375,6 +445,9 @@ function saveEdit(task: Task) {
 <style scoped lang="scss">
 .page {
   padding: 24px 28px 32px;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(59, 130, 246, 0.08), transparent 28%),
+    linear-gradient(180deg, #f8fbff 0%, #f4f7fb 44%, #f7faff 100%);
 }
 
 .hero-row {
@@ -406,15 +479,30 @@ function saveEdit(task: Task) {
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-  margin: 22px 0;
+  gap: 16px;
+  margin: 24px 0 16px;
 }
 
 .metric {
-  padding: 16px 18px;
+  min-height: 92px;
+  padding: 18px 20px;
   border: 1px solid #e4ebf5;
   border-radius: 8px;
   background: #fff;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.04);
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+
+  &:hover {
+    border-color: #d7e6fb;
+    box-shadow: 0 16px 34px rgba(37, 99, 235, 0.1);
+    transform: translateY(-2px);
+  }
 
   span,
   strong {
@@ -434,26 +522,88 @@ function saveEdit(task: Task) {
   }
 }
 
+.metric-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: #eff6ff;
+  color: #3b82f6;
+  box-shadow: inset 0 0 0 1px #e0edff;
+
+  svg {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+.filter-panel {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 18px;
+  padding: 18px 20px;
+  border: 1px solid #e4ebf5;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+
+  :deep(.el-input__wrapper),
+  :deep(.el-select__wrapper) {
+    min-height: 42px;
+    border-radius: 8px;
+    box-shadow: 0 0 0 1px #dbe5f0 inset;
+  }
+}
+
+.search-input {
+  max-width: 360px;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 210px;
+
+  > span {
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .el-select {
+    flex: 1;
+  }
+}
+
 .board {
   display: grid;
   grid-template-columns: repeat(3, minmax(280px, 1fr));
-  gap: 16px;
+  gap: 18px;
   align-items: start;
 }
 
 .kanban-column {
   min-height: 610px;
-  padding: 14px;
-  border: 1px solid #e3eaf4;
+  padding: 16px;
+  border: 1px solid #e2ebf6;
   border-radius: 8px;
-  background: #edf2f8;
+  background: rgba(247, 250, 254, 0.92);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78);
   transition:
     border-color 0.16s ease,
-    background 0.16s ease;
+    background 0.16s ease,
+    box-shadow 0.16s ease;
 
   &.is-active {
     border-color: #2563eb;
     background: #e8f1ff;
+    box-shadow:
+      inset 0 0 0 1px rgba(37, 99, 235, 0.16),
+      0 12px 30px rgba(37, 99, 235, 0.08);
   }
 }
 
@@ -497,20 +647,79 @@ function saveEdit(task: Task) {
 
 .task-list {
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 
 .task-card {
+  position: relative;
   padding: 14px;
-  border: 1px solid #e5edf6;
+  border: 1px solid #e7eef7;
   border-radius: 8px;
   background: #fff;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
   cursor: grab;
+  overflow: hidden;
+  transform: translateY(0);
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.18s ease,
+    transform 0.18s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    // background: #94a3b8;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0));
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease;
+  }
+
+  &:hover {
+    border-color: #d5e3f4;
+    box-shadow:
+      0 22px 46px rgba(15, 23, 42, 0.12),
+      0 0 0 1px rgba(37, 99, 235, 0.05);
+    transform: translateY(-4px);
+
+    &::after {
+      opacity: 1;
+    }
+  }
 
   &:active {
     cursor: grabbing;
   }
+
+  &.is-dragging {
+    opacity: 0.58;
+    border-color: #93c5fd;
+    box-shadow:
+      0 24px 52px rgba(37, 99, 235, 0.22),
+      0 0 0 1px rgba(37, 99, 235, 0.2);
+    transform: rotate(1deg) scale(0.985);
+  }
+
+  // &.priority-high::before {
+  //   background: linear-gradient(180deg, #ef4444, #dc2626);
+  // }
+
+  // &.priority-medium::before {
+  //   background: linear-gradient(180deg, #f59e0b, #d97706);
+  // }
+
+  // &.priority-low::before {
+  //   background: linear-gradient(180deg, #94a3b8, #64748b);
+  // }
 
   h3 {
     margin: 12px 0 8px;
@@ -597,6 +806,10 @@ function saveEdit(task: Task) {
 
   .metrics-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .filter-panel {
+    flex-wrap: wrap;
   }
 }
 
