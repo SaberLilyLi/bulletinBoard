@@ -141,6 +141,21 @@ const editingTitle = ref('')
 const dragTaskId = ref('')
 const dragFromStatus = ref<TaskStatus | ''>('')
 const activeDropStatus = ref<TaskStatus | ''>('')
+const detailDrawerVisible = ref(false)
+const selectedTask = ref<Task | null>(null)
+
+const detailChecklist = [
+  { label: '需求范围已确认', done: true },
+  { label: '交互稿完成走查', done: true },
+  { label: '接口字段完成对齐', done: false },
+  { label: '验收用例补充完成', done: false },
+]
+
+const detailActivities = [
+  { user: '林清', action: '补充了客户验收口径', time: '今天 10:24' },
+  { user: '陈一', action: '更新了拖拽交互方案', time: '昨天 18:12' },
+  { user: '周然', action: '完成接口字段评审', time: '昨天 15:40' },
+]
 
 const newTask = reactive({
   title: '',
@@ -256,6 +271,11 @@ function saveEdit(task: Task) {
   }
   editingId.value = ''
 }
+
+function openTaskDetail(task: Task) {
+  selectedTask.value = task
+  detailDrawerVisible.value = true
+}
 </script>
 
 <template>
@@ -365,6 +385,7 @@ function saveEdit(task: Task) {
             class="task-card"
             :class="[`priority-${task.priority}`, { 'is-dragging': dragTaskId === task.id }]"
             draggable="true"
+            @dblclick="openTaskDetail(task)"
             @dragstart="startDrag(task, column.id)"
             @dragend="resetDrag"
           >
@@ -384,7 +405,7 @@ function saveEdit(task: Task) {
               @blur="saveEdit(task)"
               @keyup.enter="saveEdit(task)"
             />
-            <h3 v-else @dblclick="startEdit(task)">{{ task.title }}</h3>
+            <h3 v-else>{{ task.title }}</h3>
 
             <p>{{ task.description }}</p>
 
@@ -439,6 +460,104 @@ function saveEdit(task: Task) {
       <Warning />
       双击卡片标题可编辑；拖拽卡片到其他列可模拟状态流转。
     </div>
+    <el-drawer v-model="detailDrawerVisible" size="420px" class="task-detail-drawer" destroy-on-close>
+      <template #header>
+        <div class="drawer-title">
+          <span>任务详情</span>
+          <strong>{{ selectedTask?.id }}</strong>
+        </div>
+      </template>
+
+      <div v-if="selectedTask" class="detail-body">
+        <div class="detail-hero" :class="`priority-${selectedTask.priority}`">
+          <el-tag :type="priorityMeta[selectedTask.priority].type" effect="light">
+            {{ priorityMeta[selectedTask.priority].label }}优先级
+          </el-tag>
+          <h2>{{ selectedTask.title }}</h2>
+          <p>{{ selectedTask.description }}</p>
+        </div>
+
+        <section class="detail-section">
+          <h3>任务概览</h3>
+          <div class="detail-grid">
+            <div>
+              <span>负责人</span>
+              <strong>{{ selectedTask.assignee.name }}</strong>
+            </div>
+            <div>
+              <span>状态</span>
+              <strong>{{ statusMeta[selectedTask.status].label }}</strong>
+            </div>
+            <div>
+              <span>创建时间</span>
+              <strong>{{ formatDate(selectedTask.createdAt) }}</strong>
+            </div>
+            <div>
+              <span>更新于</span>
+              <strong>{{ formatDate(selectedTask.updatedAt) }}</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="detail-section">
+          <div class="section-heading">
+            <h3>完成进度</h3>
+            <strong>{{ selectedTask.progress }}%</strong>
+          </div>
+          <el-progress :percentage="selectedTask.progress" :stroke-width="10" />
+        </section>
+
+        <section class="detail-section">
+          <h3>标签</h3>
+          <div class="detail-tags">
+            <el-tag v-for="tag in selectedTask.tags" :key="tag" round>{{ tag }}</el-tag>
+            <el-tag type="info" round>客户演示</el-tag>
+            <el-tag type="success" round>本周重点</el-tag>
+          </div>
+        </section>
+
+        <section class="detail-section">
+          <h3>检查项</h3>
+          <div class="check-list">
+            <label v-for="item in detailChecklist" :key="item.label" class="check-item">
+              <el-checkbox :model-value="item.done" disabled />
+              <span :class="{ done: item.done }">{{ item.label }}</span>
+            </label>
+          </div>
+        </section>
+
+        <section class="detail-section">
+          <h3>协作成员</h3>
+          <div class="member-stack">
+            <el-avatar>林</el-avatar>
+            <el-avatar>陈</el-avatar>
+            <el-avatar>周</el-avatar>
+            <el-avatar>许</el-avatar>
+            <span>4 人参与</span>
+          </div>
+        </section>
+
+        <section class="detail-section risk-note">
+          <strong>风险提示</strong>
+          <p>接口字段仍需在联调前完成最终确认，建议在今日站会同步阻塞点。</p>
+        </section>
+
+        <section class="detail-section">
+          <h3>最近动态</h3>
+          <el-timeline>
+            <el-timeline-item
+              v-for="activity in detailActivities"
+              :key="activity.action"
+              :timestamp="activity.time"
+              type="primary"
+            >
+              <strong>{{ activity.user }}</strong>
+              <span>{{ activity.action }}</span>
+            </el-timeline-item>
+          </el-timeline>
+        </section>
+      </div>
+    </el-drawer>
   </section>
 </template>
 
@@ -795,6 +914,217 @@ function saveEdit(task: Task) {
   svg {
     width: 16px;
     height: 16px;
+  }
+}
+
+:deep(.task-detail-drawer) {
+  .el-drawer__header {
+    margin-bottom: 0;
+    padding: 20px 22px 16px;
+    border-bottom: 1px solid #eef2f7;
+  }
+
+  .el-drawer__body {
+    padding: 0;
+    background: #f7faff;
+  }
+}
+
+.drawer-title {
+  display: grid;
+  gap: 4px;
+
+  span {
+    color: #172033;
+    font-size: 18px;
+    font-weight: 800;
+  }
+
+  strong {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+  }
+}
+
+.detail-body {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.detail-hero,
+.detail-section {
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+}
+
+.detail-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 18px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 5px;
+    background: #94a3b8;
+  }
+
+  &.priority-high::before {
+    background: #ef4444;
+  }
+
+  &.priority-medium::before {
+    background: #f59e0b;
+  }
+
+  &.priority-low::before {
+    background: #94a3b8;
+  }
+
+  h2 {
+    margin: 12px 0 8px;
+    color: #172033;
+    font-size: 22px;
+    line-height: 1.28;
+    font-weight: 850;
+  }
+
+  p {
+    margin: 0;
+    color: #64748b;
+    line-height: 1.65;
+  }
+}
+
+.detail-section {
+  padding: 16px;
+
+  h3 {
+    margin: 0 0 12px;
+    color: #172033;
+    font-size: 15px;
+    font-weight: 800;
+  }
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+
+  div {
+    padding: 12px;
+    border-radius: 8px;
+    background: #f4f7fb;
+  }
+
+  span,
+  strong {
+    display: block;
+  }
+
+  span {
+    color: #64748b;
+    font-size: 12px;
+  }
+
+  strong {
+    margin-top: 4px;
+    color: #172033;
+    font-size: 13px;
+    font-weight: 800;
+  }
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+
+  h3 {
+    margin: 0;
+  }
+
+  strong {
+    color: #2563eb;
+    font-weight: 900;
+  }
+}
+
+.detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.check-list {
+  display: grid;
+  gap: 10px;
+}
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #334155;
+  font-size: 14px;
+
+  .done {
+    color: #94a3b8;
+    text-decoration: line-through;
+  }
+}
+
+.member-stack {
+  display: flex;
+  align-items: center;
+
+  .el-avatar {
+    margin-right: -8px;
+    box-shadow: 0 0 0 2px #fff;
+  }
+
+  span {
+    margin-left: 18px;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 700;
+  }
+}
+
+.risk-note {
+  background: #fff7ed;
+
+  strong {
+    color: #c2410c;
+    font-weight: 900;
+  }
+
+  p {
+    margin: 6px 0 0;
+    color: #9a3412;
+    line-height: 1.55;
+  }
+}
+
+:deep(.el-timeline) {
+  padding-left: 2px;
+}
+
+:deep(.el-timeline-item__content) {
+  strong {
+    margin-right: 6px;
+    color: #172033;
+    font-weight: 800;
+  }
+
+  span {
+    color: #64748b;
   }
 }
 

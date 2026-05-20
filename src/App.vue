@@ -8,7 +8,7 @@ import {
   TrendCharts,
   User,
 } from '@element-plus/icons-vue'
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
 
 const navItems = [
   { path: '/task-board', label: '任务看板', icon: Grid },
@@ -16,10 +16,14 @@ const navItems = [
   { path: '/data-board', label: '数据看板', icon: TrendCharts },
   { path: '/data-operation', label: '数据操作', icon: Operation },
 ]
+
+const route = useRoute()
 </script>
 
 <template>
-  <div class="layout">
+  <RouterView v-if="route.path === '/login'" />
+
+  <div v-else class="layout">
     <aside class="sidebar">
       <div class="brand">
         <div class="brand-mark">S</div>
